@@ -1,4 +1,4 @@
-package com.valhallagame.valhalla.currencyserviceserver.controller
+package com.valhallagame.valhalla.recipeserviceserver.controller
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.valhallagame.common.JS

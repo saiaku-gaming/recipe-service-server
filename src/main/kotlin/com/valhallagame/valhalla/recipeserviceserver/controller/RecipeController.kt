@@ -1,4 +1,4 @@
-package com.valhallagame.valhalla.currencyserviceserver.controller
+package com.valhallagame.valhalla.recipeserviceserver.controller
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller

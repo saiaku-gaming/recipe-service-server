@@ -45,7 +45,7 @@ plugins {
 group = "com.valhallagame.valhalla"
 version = "1.0-SNAPSHOT"
 setProperty("sourceCompatibility", JavaVersion.VERSION_1_8)
-setProperty("mainClassName", "com.valhallagame.valhalla.currencyserviceserver.AppKt")
+setProperty("mainClassName", "com.valhallagame.valhalla.recipeserviceserver.AppKt")
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "1.8"

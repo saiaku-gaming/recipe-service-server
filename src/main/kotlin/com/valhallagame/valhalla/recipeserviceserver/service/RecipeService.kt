@@ -1,4 +1,4 @@
-package com.valhallagame.valhalla.currencyserviceserver.service
+package com.valhallagame.valhalla.recipeserviceserver.service
 
 import org.springframework.stereotype.Service
 

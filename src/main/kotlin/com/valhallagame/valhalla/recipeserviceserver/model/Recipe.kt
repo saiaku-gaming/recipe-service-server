@@ -1,4 +1,4 @@
-package com.valhallagame.valhalla.currencyserviceserver.model
+package com.valhallagame.valhalla.recipeserviceserver.model
 
 import com.valhallagame.currencyserviceclient.model.CurrencyType
 import javax.persistence.*

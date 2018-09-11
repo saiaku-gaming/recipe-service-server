@@ -1,4 +1,4 @@
-package com.valhallagame.valhalla.currencyserviceserver
+package com.valhallagame.valhalla.recipeserviceserver
 
 import com.valhallagame.common.DefaultServicePortMappings
 import org.slf4j.Logger

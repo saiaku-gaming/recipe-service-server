@@ -1,6 +1,6 @@
-package com.valhallagame.valhalla.currencyserviceserver
+package com.valhallagame.valhalla.recipeserviceserver
 
-import com.valhallagame.valhalla.currencyserviceserver.controller.RecipeController
+import com.valhallagame.valhalla.recipeserviceserver.controller.RecipeController
 import org.junit.runner.RunWith
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.test.context.ActiveProfiles

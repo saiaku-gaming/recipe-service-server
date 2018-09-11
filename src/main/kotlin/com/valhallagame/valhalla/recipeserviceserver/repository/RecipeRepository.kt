@@ -1,7 +1,7 @@
-package com.valhallagame.valhalla.currencyserviceserver.repository
+package com.valhallagame.valhalla.recipeserviceserver.repository
 
 import com.valhallagame.currencyserviceclient.model.CurrencyType
-import com.valhallagame.valhalla.currencyserviceserver.model.Recipe
+import com.valhallagame.valhalla.recipeserviceserver.model.Recipe
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface RecipeRepository : JpaRepository<Recipe, Long> {
