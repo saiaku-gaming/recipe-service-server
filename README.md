@@ -1,1 +1,1 @@
-# currency-service-server
+# recipe-service-server
