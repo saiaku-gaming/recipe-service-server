@@ -66,7 +66,6 @@ repositories {
 }
 
 
-
 dependencies {
 	compile("org.springframework.boot:spring-boot-starter-data-jpa")
 	compile("org.springframework.boot:spring-boot-starter-web")
@@ -74,8 +73,10 @@ dependencies {
 	compile("org.flywaydb:flyway-core")
 	compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	compile("org.jetbrains.kotlin:kotlin-reflect")
+	compile("com.valhallagame.valhalla:character-service-client:1.0")
+	compile("com.valhallagame.valhalla:wardrobe-service-client:1.0")
 	compile("com.valhallagame.valhalla:recipe-service-client:1.0-SNAPSHOT")
-
+	compile("org.springframework.boot:spring-boot-starter-amqp")
 	runtime("org.springframework.boot:spring-boot-devtools")
 	runtime("org.postgresql:postgresql")
 

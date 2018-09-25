@@ -12,5 +12,11 @@ data class Recipe (
         val id: Long? = null,
 
         @Column(name = "character_name")
-        val characterName: String
+        val characterName: String,
+
+        @Column(name = "recipe_name")
+        val recipeName: String,
+
+        @Column(name = "claimed")
+        var claimed: Boolean
 )
