@@ -2,13 +2,13 @@ package rabbitmq
 
 import com.valhallagame.common.rabbitmq.NotificationMessage
 import com.valhallagame.valhalla.recipeserviceserver.service.RecipeService
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.verify
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class NotificationConsumerTest {
 
     @Mock

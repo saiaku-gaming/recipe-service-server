@@ -9,7 +9,7 @@ import javax.transaction.Transactional
 @Service
 class RecipeService(val recipeRepository: RecipeRepository) {
     fun getUnclaimedRecipes(characterName: String): Array<Recipe> {
-        return recipeRepository.findByCharacterNameAndClaimed(characterName, true)
+        return recipeRepository.findByCharacterNameAndClaimed(characterName, false)
     }
 
     fun addRecipe(characterName: String, recipe: String) {

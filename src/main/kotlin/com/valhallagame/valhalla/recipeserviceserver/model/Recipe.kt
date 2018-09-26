@@ -6,8 +6,7 @@ import javax.persistence.*
 @Table(name = "recipe")
 data class Recipe (
         @Id
-        @SequenceGenerator(name = "recipe_recipe_id_seq", sequenceName = "recipe_recipe_id_seq", allocationSize = 1)
-        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "recipe_recipe_id_seq")
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "recipe_id")
         val id: Long? = null,
 

@@ -30,7 +30,6 @@ class RecipeController(private val recipeService: RecipeService, private val cha
         return JS.message(HttpStatus.OK, addedCurrency)
     }
 
-
     @ResponseBody
     @PostMapping("/get")
     fun get(@Valid @RequestBody input: GetRecipesParameter): ResponseEntity<JsonNode> {
@@ -42,12 +41,10 @@ class RecipeController(private val recipeService: RecipeService, private val cha
         return JS.message(HttpStatus.BAD_GATEWAY, "Could not get selected character for ${input.username}")
     }
 
-
     @ResponseBody
     @PostMapping("/claim")
     fun claim(@Valid @RequestBody input: ClaimRecipeParameter): ResponseEntity<JsonNode> {
         val addedCurrency = recipeService.claimRecipe(input.characterName, input.recipe)
         return JS.message(HttpStatus.OK, addedCurrency)
     }
-
 }
