@@ -44,7 +44,6 @@ class RecipeController(private val recipeService: RecipeService, private val cha
     @ResponseBody
     @PostMapping("/claim")
     fun claim(@Valid @RequestBody input: ClaimRecipeParameter): ResponseEntity<JsonNode> {
-        val addedCurrency = recipeService.claimRecipe(input.characterName, input.recipe)
-        return JS.message(HttpStatus.OK, addedCurrency)
+        return JS.message(HttpStatus.OK, recipeService.claimRecipe(input.characterName, input.recipe, input.currencies))
     }
 }
