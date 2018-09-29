@@ -23,6 +23,6 @@ class NotificationConsumer(val recipeService: RecipeService) {
         logger.info("Received feat add notification with message: $message")
         val featName = message.data["feat"] as String
         val characterName = message.data["characterName"] as String
-        recipeService.addRecipe(characterName, featName)
+        recipeService.addRecipeFromFeat(characterName, featName)
     }
 }

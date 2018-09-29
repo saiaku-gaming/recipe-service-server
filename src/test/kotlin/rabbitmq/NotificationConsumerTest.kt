@@ -1,6 +1,7 @@
 package rabbitmq
 
 import com.valhallagame.common.rabbitmq.NotificationMessage
+import com.valhallagame.featserviceclient.message.FeatName
 import com.valhallagame.valhalla.recipeserviceserver.service.RecipeService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,7 +25,11 @@ class NotificationConsumerTest {
     @Test
     fun receiveFeatAdd() {
         val notificationConsumer = NotificationConsumer(recipeService)
-        notificationConsumer.receiveFeatAdd(NotificationMessage("nisse", mapOf("characterName" to "nisse", "feat" to "getting out of bed")))
-        verify(recipeService).addRecipe("nisse", "getting out of bed")
+        val notificationMessage = NotificationMessage(
+                "nisse",
+                mapOf("characterName" to "nisse", "feat" to FeatName.FREDSTORP_ANORECTIC.name)
+        )
+        notificationConsumer.receiveFeatAdd(notificationMessage)
+        verify(recipeService).addRecipeFromFeat("nisse", FeatName.FREDSTORP_ANORECTIC.name)
     }
 }

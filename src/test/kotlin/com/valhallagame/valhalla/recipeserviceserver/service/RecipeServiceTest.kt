@@ -1,18 +1,25 @@
 package com.valhallagame.valhalla.recipeserviceserver.service
 
+import com.valhallagame.common.RestResponse
 import com.valhallagame.currencyserviceclient.CurrencyServiceClient
 import com.valhallagame.currencyserviceclient.message.LockCurrencyParameter
+import com.valhallagame.currencyserviceclient.message.LockedCurrencyResult
 import com.valhallagame.currencyserviceclient.model.CurrencyType
 import com.valhallagame.valhalla.recipeserviceserver.model.Recipe
 import com.valhallagame.valhalla.recipeserviceserver.repository.RecipeRepository
 import com.valhallagame.wardrobeserviceclient.WardrobeServiceClient
+import com.valhallagame.wardrobeserviceclient.message.AddWardrobeItemParameter
 import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
+import org.springframework.http.HttpStatus
+import java.time.Instant
+import java.util.*
 
 
 class RecipeServiceTest {
@@ -46,8 +53,8 @@ class RecipeServiceTest {
     @Test
     fun addRecipe() {
         val recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient)
-        recipeService.addRecipe(characterName, "do")
-        verify(recipeRepository).addRecipe(characterName, "do")
+        recipeService.addRecipe(characterName, WardrobeItem.CLOTH_ARMOR)
+        verify(recipeRepository).addRecipe(characterName, WardrobeItem.CLOTH_ARMOR.name)
     }
 
     @Test
@@ -55,17 +62,33 @@ class RecipeServiceTest {
         val recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient)
         val currencies = listOf(
                 LockCurrencyParameter.Currency(CurrencyType.GOLD, 10),
-                LockCurrencyParameter.Currency(CurrencyType.IRON, 10)
+                LockCurrencyParameter.Currency(CurrencyType.IRON, 20)
         )
         `when`(recipeRepository.findByCharacterNameAndRecipeName(characterName, WardrobeItem.CLOTH_ARMOR.name))
                 .thenReturn(Recipe(0, characterName, WardrobeItem.CLOTH_ARMOR.name, false))
+        val lockingId = "lockingId"
+        val lockedResult = listOf(
+                LockedCurrencyResult(0, characterName, CurrencyType.GOLD, 10, lockingId, Instant.EPOCH),
+                LockedCurrencyResult(1, characterName, CurrencyType.IRON, 20, lockingId, Instant.EPOCH)
+        )
+        `when`(currencyServiceClient.lockCurrencies(characterName, currencies))
+                .thenReturn(RestResponse<List<LockedCurrencyResult>>(HttpStatus.OK, Optional.of(lockedResult)))
+
+        `when`(currencyServiceClient.commitLockedCurrencies(lockingId))
+                .thenReturn(RestResponse<String>(HttpStatus.OK, Optional.of("Eh, some response?")))
+
+        `when`(wardrobeServiceClient.addWardrobeItem(AddWardrobeItemParameter(characterName, WardrobeItem.CLOTH_ARMOR)))
+                .thenReturn(RestResponse<String>(HttpStatus.OK, Optional.of("Eh, some response?")))
 
         recipeService.claimRecipe(characterName, WardrobeItem.CLOTH_ARMOR, currencies)
 
-        TODO("figure out what to assert")
+        verify(recipeRepository).save(any())
     }
 
     @Test
     fun deleteRecipes() {
+        val recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient)
+        recipeService.deleteRecipes(characterName)
+        verify(recipeRepository).deleteByCharacterName(characterName)
     }
 }
