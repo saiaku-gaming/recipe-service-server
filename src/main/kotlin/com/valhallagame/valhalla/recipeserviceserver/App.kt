@@ -8,6 +8,7 @@ import org.springframework.boot.runApplication
 import org.springframework.boot.web.server.WebServerFactoryCustomizer
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Profile
 import java.io.FileInputStream
 import java.util.*
 
@@ -18,6 +19,7 @@ class App {
     }
 
     @Bean
+    @Profile("!test")
     fun customizer() = WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
         it.setPort(DefaultServicePortMappings.RECIPE_SERVICE_PORT)
     }
@@ -35,8 +37,8 @@ fun main(args: Array<String>) {
             if (split.size == 2) {
                 System.getProperties().setProperty(split[0], split[1])
             } else {
-                FileInputStream(args[0]).use {
-                    System.getProperties().load(it)
+                FileInputStream(args[0]).use { inputStream ->
+                    System.getProperties().load(inputStream)
                 }
             }
         }

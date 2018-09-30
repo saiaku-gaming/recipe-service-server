@@ -54,7 +54,8 @@ class RecipeServiceTest {
     fun addRecipe() {
         val recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient)
         recipeService.addRecipe(characterName, WardrobeItem.CLOTH_ARMOR)
-        verify(recipeRepository).addRecipe(characterName, WardrobeItem.CLOTH_ARMOR.name)
+
+        verify(recipeRepository).save(Recipe(null, characterName, WardrobeItem.CLOTH_ARMOR.name, false))
     }
 
     @Test

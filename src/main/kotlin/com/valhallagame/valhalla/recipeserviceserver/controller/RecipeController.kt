@@ -6,7 +6,9 @@ import com.valhallagame.common.JS
 import com.valhallagame.recipeserviceclient.message.AddRecipeParameter
 import com.valhallagame.recipeserviceclient.message.ClaimRecipeParameter
 import com.valhallagame.recipeserviceclient.message.GetRecipesParameter
+import com.valhallagame.recipeserviceclient.model.RecipeData
 import com.valhallagame.valhalla.recipeserviceserver.service.RecipeService
+import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -35,8 +37,11 @@ class RecipeController(private val recipeService: RecipeService, private val cha
     fun get(@Valid @RequestBody input: GetRecipesParameter): ResponseEntity<JsonNode> {
         val selectedCharacterResp = characterServiceClient.getSelectedCharacter(input.username)
         if (selectedCharacterResp.isOk && selectedCharacterResp.get().isPresent) {
-            val recipes = recipeService.getUnclaimedRecipes(selectedCharacterResp.get().get().characterName)
-            return JS.message(HttpStatus.OK, recipes)
+            val recipes = recipeService.getRecipes(selectedCharacterResp.get().get().characterName)
+            val recipeData = recipes.map { r ->
+                RecipeData(r.characterName, WardrobeItem.valueOf(r.recipeName), r.claimed)
+            }
+            return JS.message(HttpStatus.OK, recipeData)
         }
         return JS.message(HttpStatus.BAD_GATEWAY, "Could not get selected character for ${input.username}")
     }

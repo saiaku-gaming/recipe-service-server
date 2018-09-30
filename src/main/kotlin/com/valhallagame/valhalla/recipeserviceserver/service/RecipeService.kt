@@ -22,12 +22,16 @@ class RecipeService(
         @Autowired val wardrobeServiceClient: WardrobeServiceClient
 ) {
 
+    fun getRecipes(characterName: String?): List<Recipe> {
+        return recipeRepository.findByCharacterName(characterName)
+    }
+
     fun getUnclaimedRecipes(characterName: String): List<Recipe> {
         return recipeRepository.findByCharacterNameAndClaimed(characterName, false)
     }
 
     fun addRecipe(characterName: String, recipeEnum: WardrobeItem) {
-        return recipeRepository.addRecipe(characterName, recipeEnum.name)
+        recipeRepository.save(Recipe(null, characterName, recipeEnum.name, false))
     }
 
     @Transactional
@@ -131,4 +135,6 @@ class RecipeService(
             }
         }
     }
+
+
 }

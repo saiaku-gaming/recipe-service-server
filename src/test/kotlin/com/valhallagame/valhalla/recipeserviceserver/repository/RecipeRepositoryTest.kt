@@ -1,5 +1,6 @@
 package com.valhallagame.valhalla.recipeserviceserver.repository
 
+import com.valhallagame.valhalla.recipeserviceserver.model.Recipe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -16,14 +17,14 @@ class RecipeRepositoryTest(@Autowired val recipeRepository: RecipeRepository) {
 
     @Test
     fun findByCharacterNameAndClaimed_ignoreUnclaimed() {
-        recipeRepository.addRecipe("nisse", "bed")
+        recipeRepository.save(Recipe(null, "nisse", "bed", false))
         val findByCharacterNameAndClaimed = recipeRepository.findByCharacterNameAndClaimed("nisse", true)
         assertThat(findByCharacterNameAndClaimed).isEmpty()
     }
 
     @Test
     fun findByCharacterNameAndClaimed() {
-        recipeRepository.addRecipe("nisse", "bed")
+        recipeRepository.save(Recipe(null, "nisse", "bed", false))
 
         val recipeUnclaimed = recipeRepository.findByCharacterNameAndClaimed("nisse", true)
         assertThat(recipeUnclaimed).isEmpty()
@@ -43,7 +44,7 @@ class RecipeRepositoryTest(@Autowired val recipeRepository: RecipeRepository) {
 
     @Test
     fun deleteByCharacterName() {
-        recipeRepository.addRecipe("nisse", "bed")
+        recipeRepository.save(Recipe(null, "nisse", "bed", false))
         val recipeBefore = recipeRepository.findByCharacterNameAndRecipeName("nisse", "bed")!!
         assertThat(recipeBefore.characterName).isEqualTo("nisse")
 
