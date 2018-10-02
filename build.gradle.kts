@@ -71,7 +71,7 @@ dependencies {
 	compile("org.jetbrains.kotlin:kotlin-reflect")
 	compile("com.valhallagame.valhalla:character-service-client:1.0")
 	compile("com.valhallagame.valhalla:wardrobe-service-client:1.0")
-	compile("com.valhallagame.valhalla:recipe-service-client:1.0-SNAPSHOT")
+	compile("com.valhallagame.valhalla:recipe-service-client:1.1")
 	compile("com.valhallagame.valhalla:currency-service-client:1.4")
 	compile("com.valhallagame.valhalla:wardrobe-service-client:1.0")
 	compile("com.valhallagame.valhalla:feat-service-client:1.0")
