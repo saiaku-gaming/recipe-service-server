@@ -35,7 +35,7 @@ plugins {
 }
 
 group = "com.valhallagame.valhalla"
-version = "1.0-SNAPSHOT"
+version = "1.0"
 setProperty("sourceCompatibility", JavaVersion.VERSION_1_8)
 setProperty("mainClassName", "com.valhallagame.valhalla.recipeserviceserver.AppKt")
 
