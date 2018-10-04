@@ -1,6 +1,7 @@
-package rabbitmq
+package com.valhallagame.valhalla.recipeserviceserver.rabbitmq
 
 import com.valhallagame.common.rabbitmq.NotificationMessage
+import com.valhallagame.featserviceclient.message.FeatName
 import com.valhallagame.valhalla.recipeserviceserver.service.RecipeService
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
@@ -21,8 +22,9 @@ class NotificationConsumer(val recipeService: RecipeService) {
     @RabbitListener(queues = ["#{recipeFeatAddQueue.name}"])
     fun receiveFeatAdd(message: NotificationMessage) {
         logger.info("Received feat add notification with message: $message")
-        val featName = message.data["feat"] as String
+        val featNameString = message.data["feat"] as String
         val characterName = message.data["characterName"] as String
+        val featName = FeatName.valueOf(featNameString)
         recipeService.addRecipeFromFeat(characterName, featName)
     }
 }

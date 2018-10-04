@@ -5,6 +5,7 @@ import com.valhallagame.currencyserviceclient.CurrencyServiceClient
 import com.valhallagame.currencyserviceclient.message.LockCurrencyParameter
 import com.valhallagame.currencyserviceclient.message.LockedCurrencyResult
 import com.valhallagame.currencyserviceclient.model.CurrencyType
+import com.valhallagame.featserviceclient.message.FeatName
 import com.valhallagame.valhalla.recipeserviceserver.model.Recipe
 import com.valhallagame.valhalla.recipeserviceserver.repository.RecipeRepository
 import com.valhallagame.wardrobeserviceclient.WardrobeServiceClient
@@ -15,8 +16,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.springframework.http.HttpStatus
 import java.time.Instant
 import java.util.*
@@ -56,6 +56,14 @@ class RecipeServiceTest {
         recipeService.addRecipe(characterName, WardrobeItem.CLOTH_ARMOR)
 
         verify(recipeRepository).save(Recipe(null, characterName, WardrobeItem.CLOTH_ARMOR.name, false))
+    }
+
+    @Test
+    fun addRecipeByNotification() {
+        val recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient)
+        recipeService.addRecipeFromFeat(characterName, FeatName.FREDSTORP_SPEEDRUNNER)
+        verify(recipeRepository).save(Recipe(null, characterName, WardrobeItem.LONGSWORD.name, false))
+        verifyZeroInteractions(recipeRepository)
     }
 
     @Test

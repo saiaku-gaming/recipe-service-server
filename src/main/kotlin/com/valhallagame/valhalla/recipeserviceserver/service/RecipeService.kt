@@ -12,8 +12,8 @@ import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
 import com.valhallagame.wardrobeserviceclient.message.WardrobeItem.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import javax.transaction.Transactional
 
 @Service
 class RecipeService(
@@ -73,60 +73,53 @@ class RecipeService(
         }
     }
 
+    @Transactional
+    fun removeRecipe(characterName: String, recipeEnum: WardrobeItem) {
+        recipeRepository.deleteByCharacterNameAndRecipeName(characterName, recipeEnum.name)
+    }
+
+    @Transactional
     fun deleteRecipes(characterName: String) {
         recipeRepository.deleteByCharacterName(characterName)
     }
 
-    fun addRecipeFromFeat(characterName: String, featNameString: String) {
-        val featName = FeatName.valueOf(featNameString)
+    fun addRecipeFromFeat(characterName: String, featName: FeatName) {
         when (featName) {
             FeatName.MISSVEDEN_SAXUMPHILE -> {
                 addRecipe(characterName, SMALL_SHIELD)
-                return
             }
             FeatName.MISSVEDEN_DENIED -> {
                 addRecipe(characterName, SHAMANS_PELT)
-                return
             }
             FeatName.MISSVEDEN_TREADING_WITH_GREAT_CARE -> {
                 addRecipe(characterName, RANGERS_SAFEGUARD)
-                return
             }
             FeatName.MISSVEDEN_NO_LESSER_FOES -> {
                 addRecipe(characterName, LARGE_SHIELD)
-                return
             }
             FeatName.MISSVEDEN_A_CRYSTAL_CLEAR_MYSTERY -> {
                 addRecipe(characterName, DAGGER)
-                return
             }
             FeatName.FREDSTORP_THIEF_OF_THIEVES -> {
                 addRecipe(characterName, HUNTING_BOW)
-                return
             }
             FeatName.FREDSTORP_SPEEDRUNNER -> {
                 addRecipe(characterName, LONGSWORD)
-                return
             }
             FeatName.FREDSTORP_GAMBLER -> {
                 addRecipe(characterName, MAIL_ARMOR)
-                return
             }
             FeatName.FREDSTORP_ANORECTIC -> {
                 addRecipe(characterName, CLOTH_ARMOR)
-                return
             }
             FeatName.FREDSTORP_NEVER_BEEN_BETTER -> {
                 addRecipe(characterName, GREATAXE)
-                return
             }
             FeatName.FREDSTORP_EXTRACTOR -> {
                 addRecipe(characterName, HAND_AXE)
-                return
             }
             FeatName.FREDSTORP_EXTERMINATOR -> {
                 addRecipe(characterName, STEEL_SHIELD)
-                return
             }
             FeatName.EINHARJER_SLAYER -> TODO("This should be removed!")
             FeatName.TRAINING_EFFICIENCY -> TODO("This should be removed")
@@ -135,6 +128,4 @@ class RecipeService(
             }
         }
     }
-
-
 }

@@ -6,6 +6,7 @@ import com.valhallagame.common.JS
 import com.valhallagame.recipeserviceclient.message.AddRecipeParameter
 import com.valhallagame.recipeserviceclient.message.ClaimRecipeParameter
 import com.valhallagame.recipeserviceclient.message.GetRecipesParameter
+import com.valhallagame.recipeserviceclient.message.RemoveRecipeParameter
 import com.valhallagame.recipeserviceclient.model.RecipeData
 import com.valhallagame.valhalla.recipeserviceserver.service.RecipeService
 import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
@@ -28,8 +29,8 @@ class RecipeController(private val recipeService: RecipeService, private val cha
     @ResponseBody
     @PostMapping("/add")
     fun add(@Valid @RequestBody input: AddRecipeParameter): ResponseEntity<JsonNode> {
-        val addedCurrency = recipeService.addRecipe(input.characterName, input.recipe)
-        return JS.message(HttpStatus.OK, addedCurrency)
+        recipeService.addRecipe(input.characterName, input.recipe)
+        return JS.message(HttpStatus.OK, "Added recipe")
     }
 
     @ResponseBody
@@ -50,5 +51,12 @@ class RecipeController(private val recipeService: RecipeService, private val cha
     @PostMapping("/claim")
     fun claim(@Valid @RequestBody input: ClaimRecipeParameter): ResponseEntity<JsonNode> {
         return JS.message(HttpStatus.OK, recipeService.claimRecipe(input.characterName, input.recipe, input.currencies))
+    }
+
+    @ResponseBody
+    @PostMapping("/remove")
+    fun add(@Valid @RequestBody input: RemoveRecipeParameter): ResponseEntity<JsonNode> {
+        recipeService.removeRecipe(input.characterName, input.recipe)
+        return JS.message(HttpStatus.OK, "Recipe removed")
     }
 }
