@@ -1,5 +1,6 @@
 package com.valhallagame.valhalla.recipeserviceserver.service
 
+import com.valhallagame.characterserviceclient.CharacterServiceClient
 import com.valhallagame.common.RestResponse
 import com.valhallagame.currencyserviceclient.CurrencyServiceClient
 import com.valhallagame.currencyserviceclient.message.LockCurrencyParameter
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.*
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.http.HttpStatus
 import java.time.Instant
 import java.util.*
@@ -24,23 +26,28 @@ import java.util.*
 
 class RecipeServiceTest {
 
+    private lateinit var recipeRepository: RecipeRepository
+    private lateinit var currencyServiceClient: CurrencyServiceClient
+    private lateinit var wardrobeServiceClient: WardrobeServiceClient
+    private lateinit var rabbitTemplate: RabbitTemplate
+    private lateinit var characterServiceClient: CharacterServiceClient
+    private lateinit var recipeService: RecipeService
+
+    private val characterName = "nissecharacter"
+
     @BeforeEach
     fun mock() {
         //TODO why the fuck do it need to do it like this and not just use @Mock
         recipeRepository = Mockito.mock(RecipeRepository::class.java)
         currencyServiceClient = Mockito.mock(CurrencyServiceClient::class.java)
         wardrobeServiceClient = Mockito.mock(WardrobeServiceClient::class.java)
+        characterServiceClient = Mockito.mock(CharacterServiceClient::class.java)
+        rabbitTemplate = Mockito.mock(RabbitTemplate::class.java)
+        recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient, characterServiceClient, rabbitTemplate)
     }
-
-    private lateinit var recipeRepository: RecipeRepository
-    private lateinit var currencyServiceClient: CurrencyServiceClient
-    private lateinit var wardrobeServiceClient: WardrobeServiceClient
-
-    private val characterName = "nissecharacter"
 
     @Test
     fun getUnclaimedRecipes() {
-        val recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient)
         val recipeOne = Recipe(0, characterName, "do", false)
         val recipeTwo = Recipe(0, characterName, "re", false)
         val recipeThree = Recipe(0, characterName, "me", false)
@@ -52,15 +59,12 @@ class RecipeServiceTest {
 
     @Test
     fun addRecipe() {
-        val recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient)
         recipeService.addRecipe(characterName, WardrobeItem.CLOTH_ARMOR)
-
         verify(recipeRepository).save(Recipe(null, characterName, WardrobeItem.CLOTH_ARMOR.name, false))
     }
 
     @Test
     fun addRecipeByNotification() {
-        val recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient)
         recipeService.addRecipeFromFeat(characterName, FeatName.FREDSTORP_SPEEDRUNNER)
         verify(recipeRepository).save(Recipe(null, characterName, WardrobeItem.LONGSWORD.name, false))
         verifyZeroInteractions(recipeRepository)
@@ -68,7 +72,6 @@ class RecipeServiceTest {
 
     @Test
     fun claimRecipe() {
-        val recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient)
         val currencies = listOf(
                 LockCurrencyParameter.Currency(CurrencyType.GOLD, 10),
                 LockCurrencyParameter.Currency(CurrencyType.IRON, 20)
@@ -96,7 +99,6 @@ class RecipeServiceTest {
 
     @Test
     fun deleteRecipes() {
-        val recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient)
         recipeService.deleteRecipes(characterName)
         verify(recipeRepository).deleteByCharacterName(characterName)
     }

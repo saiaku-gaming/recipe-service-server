@@ -1,5 +1,8 @@
 package com.valhallagame.valhalla.recipeserviceserver.service
 
+import com.valhallagame.characterserviceclient.CharacterServiceClient
+import com.valhallagame.common.rabbitmq.NotificationMessage
+import com.valhallagame.common.rabbitmq.RabbitMQRouting
 import com.valhallagame.currencyserviceclient.CurrencyServiceClient
 import com.valhallagame.currencyserviceclient.message.LockCurrencyParameter.Currency
 import com.valhallagame.currencyserviceclient.message.LockedCurrencyResult
@@ -10,6 +13,7 @@ import com.valhallagame.wardrobeserviceclient.WardrobeServiceClient
 import com.valhallagame.wardrobeserviceclient.message.AddWardrobeItemParameter
 import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
 import com.valhallagame.wardrobeserviceclient.message.WardrobeItem.*
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -19,7 +23,9 @@ import java.util.*
 class RecipeService(
         @Autowired val recipeRepository: RecipeRepository,
         @Autowired val currencyServiceClient: CurrencyServiceClient,
-        @Autowired val wardrobeServiceClient: WardrobeServiceClient
+        @Autowired val wardrobeServiceClient: WardrobeServiceClient,
+        @Autowired val characterServiceClient: CharacterServiceClient,
+        @Autowired val rabbitTemplate: RabbitTemplate
 ) {
 
     fun getRecipes(characterName: String?): List<Recipe> {
@@ -31,7 +37,19 @@ class RecipeService(
     }
 
     fun addRecipe(characterName: String, recipeEnum: WardrobeItem) {
+        val characterResp = characterServiceClient.getCharacter(characterName)
+        val characterOpt = characterResp.get()
+        if (!characterOpt.isPresent) {
+            throw IllegalArgumentException("could not find character with $characterName")
+        }
+
         recipeRepository.save(Recipe(null, characterName, recipeEnum.name, false))
+        rabbitTemplate.convertAndSend(
+                RabbitMQRouting.Exchange.RECIPE.name,
+                RabbitMQRouting.Recipe.ADD.name,
+                NotificationMessage(characterOpt.get().ownerUsername, "Gained $recipeEnum for $characterName")
+                        .withData("recipe", recipeEnum.name)
+        )
     }
 
     @Transactional
@@ -68,14 +86,34 @@ class RecipeService(
         recipeRepository.save(recipe)
 
         val commitResp = currencyServiceClient.commitLockedCurrencies(lockingId)
+
         if (!commitResp.isOk) {
             throw RuntimeException("commit failed with message: ${commitResp.errorMessage}")
         }
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQRouting.Exchange.RECIPE.name,
+                RabbitMQRouting.Recipe.REMOVE.name,
+                NotificationMessage(
+                        characterName,
+                        "Claimed $recipeEnum for $characterName")
+                        .withData("recipe", recipeEnum.name)
+        )
+
     }
 
     @Transactional
     fun removeRecipe(characterName: String, recipeEnum: WardrobeItem) {
         recipeRepository.deleteByCharacterNameAndRecipeName(characterName, recipeEnum.name)
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQRouting.Exchange.RECIPE.name,
+                RabbitMQRouting.Recipe.REMOVE.name,
+                NotificationMessage(
+                        characterName,
+                        "Removed $recipeEnum for $characterName")
+                        .withData("recipe", recipeEnum.name)
+        )
     }
 
     @Transactional
@@ -121,10 +159,8 @@ class RecipeService(
             FeatName.FREDSTORP_EXTERMINATOR -> {
                 addRecipe(characterName, STEEL_SHIELD)
             }
-            FeatName.EINHARJER_SLAYER -> TODO("This should be removed!")
-            FeatName.TRAINING_EFFICIENCY -> TODO("This should be removed")
             FeatName.MISSVEDEN_THE_CHIEFTAINS_DEMISE -> {
-                // Adds traits instead
+                // Does not give recipe but traits!
             }
         }
     }
