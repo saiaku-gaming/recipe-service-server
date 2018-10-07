@@ -45,7 +45,7 @@
         <dependency>
             <groupId>com.valhallagame.valhalla</groupId>
             <artifactId>common</artifactId>
-            <version>1.4</version>
+            <version>1.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.valhallagame.valhalla</groupId>
@@ -71,7 +71,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.5</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>

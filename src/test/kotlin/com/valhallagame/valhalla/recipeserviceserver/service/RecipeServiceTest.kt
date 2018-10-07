@@ -72,10 +72,11 @@ class RecipeServiceTest {
 
     @Test
     fun claimRecipe() {
-        val currencies = listOf(
-                LockCurrencyParameter.Currency(CurrencyType.GOLD, 10),
-                LockCurrencyParameter.Currency(CurrencyType.IRON, 20)
+        val currencies = mapOf(
+                CurrencyType.GOLD to 10,
+                CurrencyType.IRON to 20
         )
+
         `when`(recipeRepository.findByCharacterNameAndRecipeName(characterName, WardrobeItem.CLOTH_ARMOR.name))
                 .thenReturn(Recipe(0, characterName, WardrobeItem.CLOTH_ARMOR.name, false))
         val lockingId = "lockingId"
@@ -83,8 +84,9 @@ class RecipeServiceTest {
                 LockedCurrencyResult(0, characterName, CurrencyType.GOLD, 10, lockingId, Instant.EPOCH),
                 LockedCurrencyResult(1, characterName, CurrencyType.IRON, 20, lockingId, Instant.EPOCH)
         )
-        `when`(currencyServiceClient.lockCurrencies(characterName, currencies))
-                .thenReturn(RestResponse<List<LockedCurrencyResult>>(HttpStatus.OK, Optional.of(lockedResult)))
+        `when`(currencyServiceClient.lockCurrencies(characterName, currencies.map { ent ->
+            LockCurrencyParameter.Currency(ent.key, ent.value)
+        })).thenReturn(RestResponse<List<LockedCurrencyResult>>(HttpStatus.OK, Optional.of(lockedResult)))
 
         `when`(currencyServiceClient.commitLockedCurrencies(lockingId))
                 .thenReturn(RestResponse<String>(HttpStatus.OK, Optional.of("Eh, some response?")))
