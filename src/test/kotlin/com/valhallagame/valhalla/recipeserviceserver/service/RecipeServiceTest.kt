@@ -1,6 +1,7 @@
 package com.valhallagame.valhalla.recipeserviceserver.service
 
 import com.valhallagame.characterserviceclient.CharacterServiceClient
+import com.valhallagame.characterserviceclient.model.CharacterData
 import com.valhallagame.common.RestResponse
 import com.valhallagame.currencyserviceclient.CurrencyServiceClient
 import com.valhallagame.currencyserviceclient.message.LockCurrencyParameter
@@ -34,6 +35,9 @@ class RecipeServiceTest {
     private lateinit var recipeService: RecipeService
 
     private val characterName = "nissecharacter"
+    private val characterRestResponse = RestResponse<CharacterData>(HttpStatus.OK, Optional.of(CharacterData(
+            "username", characterName, characterName, "","",""
+    )))
 
     @BeforeEach
     fun mock() {
@@ -44,6 +48,8 @@ class RecipeServiceTest {
         characterServiceClient = Mockito.mock(CharacterServiceClient::class.java)
         rabbitTemplate = Mockito.mock(RabbitTemplate::class.java)
         recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient, characterServiceClient, rabbitTemplate)
+
+        `when`(characterServiceClient.getCharacter(characterName)).thenReturn(characterRestResponse)
     }
 
     @Test
@@ -66,6 +72,9 @@ class RecipeServiceTest {
     @Test
     fun addRecipeByNotification() {
         recipeService.addRecipeFromFeat(characterName, FeatName.FREDSTORP_SPEEDRUNNER)
+        `when`(recipeRepository.findByCharacterNameAndRecipeName(characterName, WardrobeItem.LONGSWORD.name)).thenReturn(null)
+
+        verify(recipeRepository).findByCharacterNameAndRecipeName(characterName, WardrobeItem.LONGSWORD.name)
         verify(recipeRepository).save(Recipe(null, characterName, WardrobeItem.LONGSWORD.name, false))
         verifyZeroInteractions(recipeRepository)
     }

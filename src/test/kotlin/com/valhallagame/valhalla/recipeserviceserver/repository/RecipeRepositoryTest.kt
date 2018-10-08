@@ -12,7 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
 @DataJpaTest
-@ActiveProfiles("in-memory-db", "test")
+@ActiveProfiles("in-memory-db", "test", "mock-client")
 class RecipeRepositoryTest(@Autowired val recipeRepository: RecipeRepository) {
 
     @Test
