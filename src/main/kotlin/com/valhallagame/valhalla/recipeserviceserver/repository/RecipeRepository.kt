@@ -8,4 +8,5 @@ interface RecipeRepository : JpaRepository<Recipe, Long> {
     fun findByCharacterNameAndRecipeName(characterName: String, name: String): Recipe?
     fun deleteByCharacterName(characterName: String)
     fun findByCharacterName(characterName: String?): List<Recipe>
+    fun deleteByCharacterNameAndRecipeName(characterName: String, name: String)
 }
