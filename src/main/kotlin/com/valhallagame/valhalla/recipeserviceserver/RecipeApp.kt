@@ -19,9 +19,9 @@ import java.util.*
         basePackages = ["com.valhallagame.valhalla.recipeserviceserver"],
         basePackageClasses = [ApiResponseExceptionHandler::class]
 )
-class App {
+class RecipeApp {
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(App::class.java)
+        val logger: Logger = LoggerFactory.getLogger(RecipeApp::class.java)
     }
 
     @Bean
@@ -33,8 +33,8 @@ class App {
 
 fun main(args: Array<String>) {
     if (args.isNotEmpty()) {
-        if (App.logger.isInfoEnabled) {
-            App.logger.info("Args passed in: {}", Arrays.asList(args))
+        if (RecipeApp.logger.isInfoEnabled) {
+            RecipeApp.logger.info("Args passed in: {}", Arrays.asList(args))
         }
 
         args.forEach {
@@ -49,8 +49,8 @@ fun main(args: Array<String>) {
             }
         }
     } else {
-        App.logger.info("No args passed to main")
+        RecipeApp.logger.info("No args passed to main")
     }
 
-    runApplication<App>(*args)
+    runApplication<RecipeApp>(*args)
 }
