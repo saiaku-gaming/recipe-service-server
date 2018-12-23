@@ -25,6 +25,14 @@ class NotificationConsumer(val recipeService: RecipeService) {
         val featNameString = message.data["feat"] as String
         val characterName = message.data["characterName"] as String
         val featName = FeatName.valueOf(featNameString)
-        recipeService.addRecipeFromFeat(characterName, featName)
+        try {
+            recipeService.addRecipeFromFeat(characterName, featName)
+        } catch (e: IllegalArgumentException) {
+            if (e.message!!.contains("already added recipe", false)) {
+                logger.info("Tried to add $featName to $characterName but it already had that recipe")
+                return
+            }
+            throw e
+        }
     }
 }
