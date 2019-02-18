@@ -22,17 +22,20 @@ import javax.validation.Valid
 @RestController
 @RequestMapping(path = ["/v1/recipe"])
 class RecipeController(private val recipeService: RecipeService, private val characterServiceClient: CharacterServiceClient) {
-
-    private val logger = LoggerFactory.getLogger(RecipeController::class.java)
+    companion object {
+        private val logger = LoggerFactory.getLogger(RecipeController::class.java)
+    }
 
     @PostMapping("/add")
     fun add(@Valid @RequestBody input: AddRecipeParameter): ResponseEntity<JsonNode> {
+        logger.info("Add called with {}", input)
         recipeService.addRecipe(input.characterName, input.recipe)
         return JS.message(HttpStatus.OK, "Added recipe")
     }
 
     @PostMapping("/get")
     fun get(@Valid @RequestBody input: GetRecipesParameter): ResponseEntity<JsonNode> {
+        logger.info("Get called with {}", input)
         val selectedCharacterResp = characterServiceClient.getSelectedCharacter(input.username)
         if (selectedCharacterResp.isOk && selectedCharacterResp.get().isPresent) {
             val recipes = recipeService.getRecipes(selectedCharacterResp.get().get().characterName)
@@ -46,11 +49,13 @@ class RecipeController(private val recipeService: RecipeService, private val cha
 
     @PostMapping("/claim")
     fun claim(@Valid @RequestBody input: ClaimRecipeParameter): ResponseEntity<JsonNode> {
+        logger.info("Claim called with {}", input)
         return JS.message(HttpStatus.OK, recipeService.claimRecipe(input.characterName, input.recipe, input.currencies))
     }
 
     @PostMapping("/remove")
-    fun add(@Valid @RequestBody input: RemoveRecipeParameter): ResponseEntity<JsonNode> {
+    fun remove(@Valid @RequestBody input: RemoveRecipeParameter): ResponseEntity<JsonNode> {
+        logger.info("Remove called with {}", input)
         recipeService.removeRecipe(input.characterName, input.recipe)
         return JS.message(HttpStatus.OK, "Recipe removed")
     }

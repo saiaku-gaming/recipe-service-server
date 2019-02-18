@@ -2,11 +2,13 @@ package com.valhallagame.valhalla.recipeserviceserver
 
 import com.valhallagame.common.DefaultServicePortMappings
 import com.valhallagame.common.exceptions.ApiResponseExceptionHandler
+import com.valhallagame.common.filter.ServiceRequestFilter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.boot.web.server.WebServerFactoryCustomizer
+import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -28,6 +30,24 @@ class RecipeApp {
     @Profile("!test")
     fun customizer() = WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
         it.setPort(DefaultServicePortMappings.RECIPE_SERVICE_PORT)
+    }
+
+    @Bean
+    fun requestFilterRegistration(): FilterRegistrationBean<ServiceRequestFilter> {
+        return FilterRegistrationBean<ServiceRequestFilter>().apply {
+            filter = getServiceRequestFilter()
+            addUrlPatterns(
+                    "/*",
+                    "/**"
+            )
+            setName("serviceRequestFilter")
+            order = 1
+        }
+    }
+
+    @Bean(name = ["serviceRequestFilter"])
+    fun getServiceRequestFilter(): ServiceRequestFilter {
+        return ServiceRequestFilter()
     }
 }
 

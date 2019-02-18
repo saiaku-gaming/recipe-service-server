@@ -53,6 +53,11 @@ class RecipeControllerIntegrationTest {
                 characterName,
                 "",
                 "",
+                "",
+                "",
+                "",
+                "",
+                "",
                 ""
         )
         val restResponse = RestResponse<CharacterData>(HttpStatus.OK, Optional.of(characterData))

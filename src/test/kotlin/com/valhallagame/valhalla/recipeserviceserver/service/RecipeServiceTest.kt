@@ -36,7 +36,7 @@ class RecipeServiceTest {
 
     private val characterName = "nissecharacter"
     private val characterRestResponse = RestResponse<CharacterData>(HttpStatus.OK, Optional.of(CharacterData(
-            "username", characterName, characterName, "","",""
+            "username", characterName, characterName, "","","","","","","",""
     )))
 
     @BeforeEach
