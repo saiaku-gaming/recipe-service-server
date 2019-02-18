@@ -15,6 +15,7 @@ import com.valhallagame.wardrobeserviceclient.WardrobeServiceClient
 import com.valhallagame.wardrobeserviceclient.message.AddWardrobeItemParameter
 import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
 import com.valhallagame.wardrobeserviceclient.message.WardrobeItem.*
+import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -30,16 +31,22 @@ class RecipeService(
         @Autowired val characterServiceClient: CharacterServiceClient,
         @Autowired val rabbitTemplate: RabbitTemplate
 ) {
+    companion object {
+        private val logger = LoggerFactory.getLogger(RecipeService::class.java)
+    }
 
     fun getRecipes(characterName: String?): List<Recipe> {
+        logger.info("Getting recipes for {}", characterName)
         return recipeRepository.findByCharacterName(characterName)
     }
 
     fun getUnclaimedRecipes(characterName: String): List<Recipe> {
+        logger.info("Getting unclaimed recipes for {}", characterName)
         return recipeRepository.findByCharacterNameAndClaimed(characterName, false)
     }
 
     fun addRecipe(characterName: String, recipeEnum: WardrobeItem) {
+        logger.info("Adding recipe for {} recipe {}", characterName, recipeEnum)
         val characterResp = characterServiceClient.getCharacter(characterName)
         val characterOpt = characterResp.get()
         if (!characterOpt.isPresent) {
@@ -62,7 +69,7 @@ class RecipeService(
     @Transactional
     @Throws(IllegalAccessException::class, LockCurrenciesException::class)
     fun claimRecipe(characterName: String, recipeEnum: WardrobeItem, currencies: Map<CurrencyType, Int>) {
-
+        logger.info("Claiming recipe for {} recipe {} currencies {}", characterName, recipeEnum, currencies)
         val recipe = recipeRepository.findByCharacterNameAndRecipeName(characterName, recipeEnum.name)
                 ?: throw IllegalArgumentException("character $characterName does not have ${recipeEnum.name}")
 
@@ -116,6 +123,7 @@ class RecipeService(
 
     @Transactional
     fun removeRecipe(characterName: String, recipeEnum: WardrobeItem) {
+        logger.info("Removing recipe {} for {}", recipeEnum, characterName)
         recipeRepository.deleteByCharacterNameAndRecipeName(characterName, recipeEnum.name)
 
         rabbitTemplate.convertAndSend(
@@ -130,10 +138,12 @@ class RecipeService(
 
     @Transactional
     fun deleteRecipes(characterName: String) {
+        logger.info("Deleting recipes for {}", characterName)
         recipeRepository.deleteByCharacterName(characterName)
     }
 
     fun addRecipeFromFeat(characterName: String, featName: FeatName) {
+        logger.info("Adding recipe from feat {} for {}", featName, characterName)
         when (featName) {
             FeatName.MISSVEDEN_SAXUMPHILE -> {
                 addRecipe(characterName, SMALL_SHIELD)

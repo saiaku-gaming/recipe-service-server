@@ -9,8 +9,9 @@ import org.springframework.stereotype.Component
 
 @Component
 class NotificationConsumer(val recipeService: RecipeService) {
-
-    private val logger = LoggerFactory.getLogger(NotificationConsumer::class.java)
+    companion object {
+        private val logger = LoggerFactory.getLogger(NotificationConsumer::class.java)
+    }
 
     @RabbitListener(queues = ["#{recipeCharacterDeleteQueue.name}"])
     fun receiveCharacterDelete(message: NotificationMessage) {
