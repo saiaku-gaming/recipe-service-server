@@ -5,7 +5,7 @@
 
     <groupId>com.valhallagame.valhalla</groupId>
     <artifactId>recipe-service-server</artifactId>
-    <version>1.6-SNAPSHOT</version>
+    <version>1.6</version>
     <packaging>jar</packaging>
 
     <name>recipe-service-server</name>
