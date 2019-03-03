@@ -39,8 +39,8 @@ class RecipeController(private val recipeService: RecipeService, private val cha
         val selectedCharacterResp = characterServiceClient.getSelectedCharacter(input.username)
         if (selectedCharacterResp.isOk && selectedCharacterResp.get().isPresent) {
             val recipes = recipeService.getRecipes(selectedCharacterResp.get().get().characterName)
-            val recipeData = recipes.map { r ->
-                RecipeData(r.characterName, WardrobeItem.valueOf(r.recipeName), r.claimed)
+            val recipeData = recipes.map {
+                RecipeData(it.characterName, WardrobeItem.valueOf(it.recipeName), it.claimed)
             }
             return JS.message(HttpStatus.OK, recipeData)
         }

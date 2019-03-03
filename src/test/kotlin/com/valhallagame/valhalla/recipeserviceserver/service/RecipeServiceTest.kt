@@ -3,6 +3,7 @@ package com.valhallagame.valhalla.recipeserviceserver.service
 import com.valhallagame.characterserviceclient.CharacterServiceClient
 import com.valhallagame.characterserviceclient.model.CharacterData
 import com.valhallagame.common.RestResponse
+import com.valhallagame.common.rabbitmq.RabbitSender
 import com.valhallagame.currencyserviceclient.CurrencyServiceClient
 import com.valhallagame.currencyserviceclient.message.LockCurrencyParameter
 import com.valhallagame.currencyserviceclient.message.LockedCurrencyResult
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.*
-import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.http.HttpStatus
 import java.time.Instant
 import java.util.*
@@ -30,7 +30,7 @@ class RecipeServiceTest {
     private lateinit var recipeRepository: RecipeRepository
     private lateinit var currencyServiceClient: CurrencyServiceClient
     private lateinit var wardrobeServiceClient: WardrobeServiceClient
-    private lateinit var rabbitTemplate: RabbitTemplate
+    private lateinit var rabbitSender: RabbitSender
     private lateinit var characterServiceClient: CharacterServiceClient
     private lateinit var recipeService: RecipeService
 
@@ -46,8 +46,8 @@ class RecipeServiceTest {
         currencyServiceClient = Mockito.mock(CurrencyServiceClient::class.java)
         wardrobeServiceClient = Mockito.mock(WardrobeServiceClient::class.java)
         characterServiceClient = Mockito.mock(CharacterServiceClient::class.java)
-        rabbitTemplate = Mockito.mock(RabbitTemplate::class.java)
-        recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient, characterServiceClient, rabbitTemplate)
+        rabbitSender = Mockito.mock(RabbitSender::class.java)
+        recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient, characterServiceClient, rabbitSender)
 
         `when`(characterServiceClient.getCharacter(characterName)).thenReturn(characterRestResponse)
     }

@@ -4,6 +4,7 @@ import com.valhallagame.characterserviceclient.CharacterServiceClient
 import com.valhallagame.common.exceptions.ApiException
 import com.valhallagame.common.rabbitmq.NotificationMessage
 import com.valhallagame.common.rabbitmq.RabbitMQRouting
+import com.valhallagame.common.rabbitmq.RabbitSender
 import com.valhallagame.currencyserviceclient.CurrencyServiceClient
 import com.valhallagame.currencyserviceclient.message.LockCurrencyParameter
 import com.valhallagame.currencyserviceclient.message.LockedCurrencyResult
@@ -16,7 +17,6 @@ import com.valhallagame.wardrobeserviceclient.message.AddWardrobeItemParameter
 import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
 import com.valhallagame.wardrobeserviceclient.message.WardrobeItem.*
 import org.slf4j.LoggerFactory
-import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -29,7 +29,7 @@ class RecipeService(
         @Autowired val currencyServiceClient: CurrencyServiceClient,
         @Autowired val wardrobeServiceClient: WardrobeServiceClient,
         @Autowired val characterServiceClient: CharacterServiceClient,
-        @Autowired val rabbitTemplate: RabbitTemplate
+        @Autowired val rabbitSender: RabbitSender
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(RecipeService::class.java)
@@ -58,8 +58,8 @@ class RecipeService(
         }
 
         recipeRepository.save(Recipe(null, characterName, recipeEnum.name, false))
-        rabbitTemplate.convertAndSend(
-                RabbitMQRouting.Exchange.RECIPE.name,
+        rabbitSender.sendMessage(
+                RabbitMQRouting.Exchange.RECIPE,
                 RabbitMQRouting.Recipe.ADD.name,
                 NotificationMessage(characterOpt.get().ownerUsername, "Gained $recipeEnum for $characterName")
                         .withData("recipe", recipeEnum.name)
@@ -110,8 +110,8 @@ class RecipeService(
             throw RuntimeException("commit failed with message: ${commitResp.errorMessage}")
         }
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQRouting.Exchange.RECIPE.name,
+        rabbitSender.sendMessage(
+                RabbitMQRouting.Exchange.RECIPE,
                 RabbitMQRouting.Recipe.REMOVE.name,
                 NotificationMessage(
                         characterName,
@@ -126,8 +126,8 @@ class RecipeService(
         logger.info("Removing recipe {} for {}", recipeEnum, characterName)
         recipeRepository.deleteByCharacterNameAndRecipeName(characterName, recipeEnum.name)
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQRouting.Exchange.RECIPE.name,
+        rabbitSender.sendMessage(
+                RabbitMQRouting.Exchange.RECIPE,
                 RabbitMQRouting.Recipe.REMOVE.name,
                 NotificationMessage(
                         characterName,
