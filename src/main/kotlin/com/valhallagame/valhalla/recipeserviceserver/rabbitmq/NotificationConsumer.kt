@@ -29,6 +29,8 @@ class NotificationConsumer(val recipeService: RecipeService) {
         try {
             val characterName = message.data["characterName"] as String
             recipeService.deleteRecipes(characterName)
+        } catch (e: Exception) {
+            logger.error("Error while processing Character Delete notification", e)
         } finally {
             MDC.clear()
         }
@@ -54,6 +56,8 @@ class NotificationConsumer(val recipeService: RecipeService) {
                 }
                 throw e
             }
+        } catch (e: Exception) {
+            logger.error("Error while processing Feat Add notification", e)
         } finally {
             MDC.clear()
         }
