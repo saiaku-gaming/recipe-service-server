@@ -11,9 +11,6 @@ import com.valhallagame.currencyserviceclient.model.CurrencyType
 import com.valhallagame.featserviceclient.message.FeatName
 import com.valhallagame.valhalla.recipeserviceserver.model.Recipe
 import com.valhallagame.valhalla.recipeserviceserver.repository.RecipeRepository
-import com.valhallagame.wardrobeserviceclient.WardrobeServiceClient
-import com.valhallagame.wardrobeserviceclient.message.AddWardrobeItemParameter
-import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,7 +26,6 @@ class RecipeServiceTest {
 
     private lateinit var recipeRepository: RecipeRepository
     private lateinit var currencyServiceClient: CurrencyServiceClient
-    private lateinit var wardrobeServiceClient: WardrobeServiceClient
     private lateinit var rabbitSender: RabbitSender
     private lateinit var characterServiceClient: CharacterServiceClient
     private lateinit var recipeService: RecipeService
@@ -44,10 +40,9 @@ class RecipeServiceTest {
         //TODO why the fuck do it need to do it like this and not just use @Mock
         recipeRepository = Mockito.mock(RecipeRepository::class.java)
         currencyServiceClient = Mockito.mock(CurrencyServiceClient::class.java)
-        wardrobeServiceClient = Mockito.mock(WardrobeServiceClient::class.java)
         characterServiceClient = Mockito.mock(CharacterServiceClient::class.java)
         rabbitSender = Mockito.mock(RabbitSender::class.java)
-        recipeService = RecipeService(recipeRepository, currencyServiceClient, wardrobeServiceClient, characterServiceClient, rabbitSender)
+        recipeService = RecipeService(recipeRepository, currencyServiceClient, characterServiceClient, rabbitSender)
 
         `when`(characterServiceClient.getCharacter(characterName)).thenReturn(characterRestResponse)
     }
@@ -65,17 +60,17 @@ class RecipeServiceTest {
 
     @Test
     fun addRecipe() {
-        recipeService.addRecipe(characterName, WardrobeItem.CLOTH_ARMOR)
-        verify(recipeRepository).save(Recipe(null, characterName, WardrobeItem.CLOTH_ARMOR.name, false))
+        recipeService.addRecipe(characterName, "CLOTH_ARMOR")
+        verify(recipeRepository).save(Recipe(null, characterName, "CLOTH_ARMOR", false))
     }
 
     @Test
     fun addRecipeByNotification() {
         recipeService.addRecipeFromFeat(characterName, FeatName.FREDSTORP_SPEEDRUNNER)
-        `when`(recipeRepository.findByCharacterNameAndRecipeName(characterName, WardrobeItem.LONGSWORD.name)).thenReturn(null)
+        `when`(recipeRepository.findByCharacterNameAndRecipeName(characterName, "WOODEN_STAFF")).thenReturn(null)
 
-        verify(recipeRepository).findByCharacterNameAndRecipeName(characterName, WardrobeItem.LONGSWORD.name)
-        verify(recipeRepository).save(Recipe(null, characterName, WardrobeItem.LONGSWORD.name, false))
+        verify(recipeRepository).findByCharacterNameAndRecipeName(characterName, "WOODEN_STAFF")
+        verify(recipeRepository).save(Recipe(null, characterName, "WOODEN_STAFF", false))
         verifyZeroInteractions(recipeRepository)
     }
 
@@ -86,8 +81,8 @@ class RecipeServiceTest {
                 CurrencyType.IRON to 20
         )
 
-        `when`(recipeRepository.findByCharacterNameAndRecipeName(characterName, WardrobeItem.CLOTH_ARMOR.name))
-                .thenReturn(Recipe(0, characterName, WardrobeItem.CLOTH_ARMOR.name, false))
+        `when`(recipeRepository.findByCharacterNameAndRecipeName(characterName, "CLOTH_ARMOR"))
+                .thenReturn(Recipe(0, characterName, "CLOTH_ARMOR", false))
         val lockingId = "lockingId"
         val lockedResult = listOf(
                 LockedCurrencyResult(0, characterName, CurrencyType.GOLD, 10, lockingId, Instant.EPOCH),
@@ -100,10 +95,7 @@ class RecipeServiceTest {
         `when`(currencyServiceClient.commitLockedCurrencies(lockingId))
                 .thenReturn(RestResponse<String>(HttpStatus.OK, Optional.of("Eh, some response?")))
 
-        `when`(wardrobeServiceClient.addWardrobeItem(AddWardrobeItemParameter(characterName, WardrobeItem.CLOTH_ARMOR)))
-                .thenReturn(RestResponse<String>(HttpStatus.OK, Optional.of("Eh, some response?")))
-
-        recipeService.claimRecipe(characterName, WardrobeItem.CLOTH_ARMOR, currencies)
+        recipeService.claimRecipe(characterName, "CLOTH_ARMOR", currencies)
 
         verify(recipeRepository).save(any())
     }

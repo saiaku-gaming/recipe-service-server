@@ -9,7 +9,6 @@ import com.valhallagame.recipeserviceclient.message.GetRecipesParameter
 import com.valhallagame.recipeserviceclient.message.RemoveRecipeParameter
 import com.valhallagame.recipeserviceclient.model.RecipeData
 import com.valhallagame.valhalla.recipeserviceserver.service.RecipeService
-import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -40,7 +39,7 @@ class RecipeController(private val recipeService: RecipeService, private val cha
         if (selectedCharacterResp.isOk && selectedCharacterResp.get().isPresent) {
             val recipes = recipeService.getRecipes(selectedCharacterResp.get().get().characterName)
             val recipeData = recipes.map {
-                RecipeData(it.characterName, WardrobeItem.valueOf(it.recipeName), it.claimed)
+                RecipeData(it.characterName, it.recipeName, it.claimed)
             }
             return JS.message(HttpStatus.OK, recipeData)
         }

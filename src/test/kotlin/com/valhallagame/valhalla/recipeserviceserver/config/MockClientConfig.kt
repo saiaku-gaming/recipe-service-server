@@ -2,7 +2,6 @@ package com.valhallagame.valhalla.recipeserviceserver.config
 
 import com.valhallagame.characterserviceclient.CharacterServiceClient
 import com.valhallagame.currencyserviceclient.CurrencyServiceClient
-import com.valhallagame.wardrobeserviceclient.WardrobeServiceClient
 import org.mockito.Mockito
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.context.annotation.Bean
@@ -17,7 +16,6 @@ class MockClientConfig {
     companion object {
         val characterServiceClientMock = Mockito.mock(CharacterServiceClient::class.java)!!
         val currencyServiceClientMock = Mockito.mock(CurrencyServiceClient::class.java)!!
-        val wardrobeServiceClientMock = Mockito.mock(WardrobeServiceClient::class.java)!!
         val rabbitTemplate = Mockito.mock(RabbitTemplate::class.java)!!
     }
 
@@ -31,12 +29,6 @@ class MockClientConfig {
     @Primary
     fun currencyServiceClient(): CurrencyServiceClient {
         return currencyServiceClientMock
-    }
-
-    @Bean
-    @Primary
-    fun wardrobeServiceClient(): WardrobeServiceClient {
-        return wardrobeServiceClientMock
     }
 
     @Bean
