@@ -12,10 +12,6 @@ import com.valhallagame.currencyserviceclient.model.CurrencyType
 import com.valhallagame.featserviceclient.message.FeatName
 import com.valhallagame.valhalla.recipeserviceserver.model.Recipe
 import com.valhallagame.valhalla.recipeserviceserver.repository.RecipeRepository
-import com.valhallagame.wardrobeserviceclient.WardrobeServiceClient
-import com.valhallagame.wardrobeserviceclient.message.AddWardrobeItemParameter
-import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
-import com.valhallagame.wardrobeserviceclient.message.WardrobeItem.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -27,7 +23,6 @@ import java.util.*
 class RecipeService(
         @Autowired val recipeRepository: RecipeRepository,
         @Autowired val currencyServiceClient: CurrencyServiceClient,
-        @Autowired val wardrobeServiceClient: WardrobeServiceClient,
         @Autowired val characterServiceClient: CharacterServiceClient,
         @Autowired val rabbitSender: RabbitSender
 ) {
@@ -45,33 +40,33 @@ class RecipeService(
         return recipeRepository.findByCharacterNameAndClaimed(characterName, false)
     }
 
-    fun addRecipe(characterName: String, recipeEnum: WardrobeItem) {
-        logger.info("Adding recipe for {} recipe {}", characterName, recipeEnum)
+    fun addRecipe(characterName: String, recipeName: String) {
+        logger.info("Adding recipe for {} recipe {}", characterName, recipeName)
         val characterResp = characterServiceClient.getCharacter(characterName)
         val characterOpt = characterResp.get()
         if (!characterOpt.isPresent) {
             throw MissingCharacterException("could not find character with $characterName")
         }
-        val found = recipeRepository.findByCharacterNameAndRecipeName(characterName, recipeEnum.name)
+        val found = recipeRepository.findByCharacterNameAndRecipeName(characterName, recipeName)
         if (found != null) {
-            throw IllegalArgumentException("already added recipe $recipeEnum for $characterName")
+            throw IllegalArgumentException("already added recipe $recipeName for $characterName")
         }
 
-        recipeRepository.save(Recipe(null, characterName, recipeEnum.name, false))
+        recipeRepository.save(Recipe(null, characterName, recipeName, false))
         rabbitSender.sendMessage(
                 RabbitMQRouting.Exchange.RECIPE,
                 RabbitMQRouting.Recipe.ADD.name,
-                NotificationMessage(characterOpt.get().ownerUsername, "Gained $recipeEnum for $characterName")
-                        .withData("recipe", recipeEnum.name)
+                NotificationMessage(characterOpt.get().ownerUsername, "Gained $recipeName for $characterName")
+                        .withData("recipe", recipeName)
         )
     }
 
     @Transactional
     @Throws(IllegalAccessException::class, LockCurrenciesException::class)
-    fun claimRecipe(characterName: String, recipeEnum: WardrobeItem, currencies: Map<CurrencyType, Int>) {
-        logger.info("Claiming recipe for {} recipe {} currencies {}", characterName, recipeEnum, currencies)
-        val recipe = recipeRepository.findByCharacterNameAndRecipeName(characterName, recipeEnum.name)
-                ?: throw IllegalArgumentException("character $characterName does not have ${recipeEnum.name}")
+    fun claimRecipe(characterName: String, recipeName: String, currencies: Map<CurrencyType, Int>) {
+        logger.info("Claiming recipe for {} recipe {} currencies {}", characterName, recipeName, currencies)
+        val recipe = recipeRepository.findByCharacterNameAndRecipeName(characterName, recipeName)
+                ?: throw IllegalArgumentException("character $characterName does not have $recipeName")
 
         val lockResp = currencyServiceClient.lockCurrencies(characterName, currencies.map { ent ->
             LockCurrencyParameter.Currency(ent.key, ent.value)
@@ -90,17 +85,6 @@ class RecipeService(
         // so we only take one from the first one
         val lockingId = resultListOpt.get()[0].lockingId
 
-        val wardrobeItemResp = wardrobeServiceClient.addWardrobeItem(AddWardrobeItemParameter(characterName, recipeEnum))
-
-        if (!wardrobeItemResp.isOk) {
-            val abortResp = currencyServiceClient.abortLockedCurrencies(lockingId)
-            if (abortResp.isOk) {
-                throw LockCurrenciesException(wardrobeItemResp.statusCode, "unlock failed with message: ${wardrobeItemResp.errorMessage}")
-            }
-            throw LockCurrenciesException(wardrobeItemResp.statusCode,
-                    "unlock failed with wardrobe message: ${wardrobeItemResp.errorMessage} and abort currency ${abortResp.errorMessage}")
-        }
-
         recipe.claimed = true
         recipeRepository.save(recipe)
 
@@ -115,24 +99,24 @@ class RecipeService(
                 RabbitMQRouting.Recipe.REMOVE.name,
                 NotificationMessage(
                         characterName,
-                        "Claimed $recipeEnum for $characterName")
-                        .withData("recipe", recipeEnum.name)
+                        "Claimed $recipeName for $characterName")
+                        .withData("recipe", recipeName)
         )
 
     }
 
     @Transactional
-    fun removeRecipe(characterName: String, recipeEnum: WardrobeItem) {
-        logger.info("Removing recipe {} for {}", recipeEnum, characterName)
-        recipeRepository.deleteByCharacterNameAndRecipeName(characterName, recipeEnum.name)
+    fun removeRecipe(characterName: String, recipeName: String) {
+        logger.info("Removing recipe {} for {}", recipeName, characterName)
+        recipeRepository.deleteByCharacterNameAndRecipeName(characterName, recipeName)
 
         rabbitSender.sendMessage(
                 RabbitMQRouting.Exchange.RECIPE,
                 RabbitMQRouting.Recipe.REMOVE.name,
                 NotificationMessage(
                         characterName,
-                        "Removed $recipeEnum for $characterName")
-                        .withData("recipe", recipeEnum.name)
+                        "Removed $recipeName for $characterName")
+                        .withData("recipe", recipeName)
         )
     }
 
@@ -146,44 +130,21 @@ class RecipeService(
         logger.info("Adding recipe from feat {} for {}", featName, characterName)
         when (featName) {
             FeatName.MISSVEDEN_SAXUMPHILE -> {
-                addRecipe(characterName, SMALL_SHIELD)
-            }
-            FeatName.MISSVEDEN_DENIED -> {
-                addRecipe(characterName, SHAMANS_PELT)
-            }
-            FeatName.MISSVEDEN_TREADING_WITH_GREAT_CARE -> {
-                addRecipe(characterName, RANGERS_SAFEGUARD)
+                addRecipe(characterName, "WARHORN")
             }
             FeatName.MISSVEDEN_NO_LESSER_FOES -> {
-                addRecipe(characterName, LARGE_SHIELD)
-            }
-            FeatName.MISSVEDEN_A_CRYSTAL_CLEAR_MYSTERY -> {
-                addRecipe(characterName, DAGGER)
-            }
-            FeatName.FREDSTORP_THIEF_OF_THIEVES -> {
-                addRecipe(characterName, HUNTING_BOW)
+                addRecipe(characterName, "LANTERN")
             }
             FeatName.FREDSTORP_SPEEDRUNNER -> {
-                addRecipe(characterName, LONGSWORD)
+                addRecipe(characterName, "WOODEN_STAFF")
             }
             FeatName.FREDSTORP_GAMBLER -> {
-                addRecipe(characterName, MAIL_ARMOR)
+                addRecipe(characterName, "PARRY_DAGGER")
             }
-            FeatName.FREDSTORP_ANORECTIC -> {
-                addRecipe(characterName, CLOTH_ARMOR)
+            FeatName.HJUO_EXPLORER -> {
+                addRecipe(characterName, "SPELL_BOOK")
             }
-            FeatName.FREDSTORP_NEVER_BEEN_BETTER -> {
-                addRecipe(characterName, GREATAXE)
-            }
-            FeatName.FREDSTORP_EXTRACTOR -> {
-                addRecipe(characterName, HAND_AXE)
-            }
-            FeatName.FREDSTORP_EXTERMINATOR -> {
-                addRecipe(characterName, STEEL_SHIELD)
-            }
-            FeatName.MISSVEDEN_THE_CHIEFTAINS_DEMISE -> {
-                // Does not give recipe but traits!
-            }
+            else -> {}
         }
     }
 }

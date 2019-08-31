@@ -6,7 +6,6 @@ import com.valhallagame.recipeserviceclient.message.GetRecipesParameter
 import com.valhallagame.valhalla.recipeserviceserver.config.MockClientConfig
 import com.valhallagame.valhalla.recipeserviceserver.model.Recipe
 import com.valhallagame.valhalla.recipeserviceserver.repository.RecipeRepository
-import com.valhallagame.wardrobeserviceclient.message.WardrobeItem
 import org.assertj.core.api.Assertions.assertThat
 import org.flywaydb.test.FlywayTestExecutionListener
 import org.flywaydb.test.annotation.FlywayTest
@@ -35,7 +34,7 @@ class RecipeControllerIntegrationTest {
 
     val username = "existinguser"
     val characterName = "existingcharacter"
-    val recipeName = WardrobeItem.CLOTH_ARMOR.name
+    val recipeName = "CLOTH_ARMOR"
 
     @Autowired
     lateinit var restTemplate: TestRestTemplate
