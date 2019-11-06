@@ -129,20 +129,40 @@ class RecipeService(
     fun addRecipeFromFeat(characterName: String, featName: FeatName) {
         logger.info("Adding recipe from feat {} for {}", featName, characterName)
         when (featName) {
-            FeatName.MISSVEDEN_SAXUMPHILE -> {
+            FeatName.MISSVEDEN_THE_CHIEFTAINS_DEMISE -> {
+                addRecipe(characterName, "WARLOCKS_BOOTS")
+                addRecipe(characterName, "LEATHER_STRIDERS")
+                addRecipe(characterName, "HARDENED_GREAVES")
+            }
+            FeatName.MISSVEDEN_DENIED -> {
                 addRecipe(characterName, "WARHORN")
             }
-            FeatName.MISSVEDEN_NO_LESSER_FOES -> {
+            FeatName.MISSVEDEN_TREADING_WITH_GREAT_CARE -> {
                 addRecipe(characterName, "LANTERN")
             }
-            FeatName.FREDSTORP_SPEEDRUNNER -> {
-                addRecipe(characterName, "WOODEN_STAFF")
+            FeatName.FREDSTORP_THIEF_OF_THIEVES -> {
+                addRecipe(characterName, "SILKEN_WRAPS")
+                addRecipe(characterName, "LEATHER_BRACERS")
+                addRecipe(characterName, "METAL_BRACERS")
             }
             FeatName.FREDSTORP_GAMBLER -> {
                 addRecipe(characterName, "PARRY_DAGGER")
             }
-            FeatName.HJUO_EXPLORER -> {
+            FeatName.FREDSTORP_SPEEDRUNNER -> {
+                addRecipe(characterName, "WOODEN_STAFF")
+            }
+            FeatName.FREDSTORP_NEVER_BEEN_BETTER -> {
                 addRecipe(characterName, "SPELL_BOOK")
+            }
+            FeatName.HJUO_EXPLORER -> {
+                addRecipe(characterName, "SUMMONERS_KILT")
+                addRecipe(characterName, "TRAPPERS_PANTS")
+                addRecipe(characterName, "STUDDED_LEATHER_PANTS")
+            }
+            FeatName.GRYNMAS_LAIR_JOTUNN_SLAYER -> {
+                addRecipe(characterName, "SUMMONERS_TUNIC")
+                addRecipe(characterName, "TRAPPERS_PELTS")
+                addRecipe(characterName, "MAIL_HAUBERK")
             }
             else -> {}
         }
