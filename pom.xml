@@ -5,7 +5,7 @@
 
     <groupId>com.valhallagame.valhalla</groupId>
     <artifactId>recipe-service-server</artifactId>
-    <version>1.11</version>
+    <version>1.12</version>
     <packaging>jar</packaging>
 
     <name>recipe-service-server</name>
@@ -59,7 +59,7 @@
         <dependency>
             <groupId>com.valhallagame.valhalla</groupId>
             <artifactId>feat-service-client</artifactId>
-            <version>1.7</version>
+            <version>1.8</version>
         </dependency>
 
         <dependency>
